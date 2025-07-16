@@ -58,6 +58,24 @@ router.get('/getUsers', async (req, res) => {
 })
 
 
+router.post('/editUser/:id', async (req, res) => {
+    try{   
+        const userId = req.params.id
+
+        const editedUser = await schemaUser.findByIdAndUpdate(
+            userId,
+            req.body,
+            { new: true, runValidators: true }
+        )
+
+        return res.status(200).json(editedUser)
+    } catch (e){
+        console.log(e)
+        return res.status(500).json(e.errorResponse)
+    }
+})
+
+
 router.delete('/deleteUser/:id', async (req, res) => {
     try{   
         const userId = req.params.id
