@@ -1,7 +1,7 @@
 const {Router} = require("express")
 const router = Router()
 const schemaUser = require('../scheme/user.scheme')
-import {getIsValidNumber} from '../src/validation'
+import {getIsValidNumber, getIsValidPassword} from '../src/validation'
 
 
 // import controlerShop from '../control/shop'
@@ -70,7 +70,26 @@ router.post('/editUser/:id', async (req, res) => {
 
         return res.status(200).json(editedUser)
     } catch (e){
-        console.log(e)
+        return res.status(500).json(e.errorResponse)
+    }
+})
+
+
+router.post('/editUserPassword/:id', async (req, res) => {
+    try{   
+        const userId = req.params.id
+
+        const passwordValidation = getIsValidPassword(req.body.password)
+        if (!passwordValidation) return res.status(409).json('password is not acceptable') 
+
+        const editedPasswordUser = await schemaUser.findByIdAndUpdate(
+            userId,
+            req.body,
+            { new: true, runValidators: true }
+        )
+
+        return res.status(200).json(editedPasswordUser)
+    } catch (e){
         return res.status(500).json(e.errorResponse)
     }
 })

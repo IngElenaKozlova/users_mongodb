@@ -4,4 +4,11 @@ export const getIsValidNumber = (elem) => {
 }
 
 
+export const getIsValidPassword = (elem) => {
+    const elemWthSpace = elem.trim()
+    if (elemWthSpace.length >= 5 && elemWthSpace.length <= 15) return true
+    return false
+}
+
+
 
