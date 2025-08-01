@@ -2,6 +2,7 @@ require('dotenv').config()
 import express from 'express'
 const mongoose = require('mongoose');
 const usersRoute = require('../routes/users')
+const messagesRoute = require('../routes/messages')
 
 
 const start = async () => {
@@ -14,6 +15,7 @@ const start = async () => {
     // console.log(response)
     
     app.use('/users', usersRoute)
+    app.use('/messages', messagesRoute)
 
     app.listen(port, host, () => {
         console.log(`Server running at http://${host}:${port}`) 
