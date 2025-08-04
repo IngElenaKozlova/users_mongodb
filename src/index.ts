@@ -12,7 +12,6 @@ const start = async () => {
     const connectURL = `mongodb+srv://${process.env.USERNAME_DB}:${process.env.PASSWORD_DB}@usersmongodb.7qfjiva.mongodb.net/`
     await mongoose.connect(connectURL)
     app.use(express.json());
-    // console.log(response)
     
     app.use('/users', usersRoute)
     app.use('/messages', messagesRoute)
