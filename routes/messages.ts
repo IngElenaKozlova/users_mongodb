@@ -1,7 +1,9 @@
-import {Message, OneMessage} from '../scheme/message.scheme'
+import { Message, OneMessage } from '../scheme/message.scheme'
+import { createChatController, sendMessageController, deleteOneMessageController } from '../controllers/messagesControllers'
+import { getIsValidChatId } from '../utils/validation'
 import { middlevarExistChat } from '../src/middlevar'
 import { faker } from '@faker-js/faker'
-const {Router} = require("express")
+const { Router } = require("express")
 const router = Router()
 
 
@@ -9,21 +11,12 @@ router.post('/createChat', async (req, res) => {
     try{   
         const idFrom = req.headers.id
         const idTo = req.body.clientId
+        const text = req.body.text
         
-        if (idFrom.trim() === "" || idTo.trim() === "") return { text: "id is not correct" }
-               
-        const chatId = idFrom > idTo ? idFrom + "-" + idTo : idTo + "-" + idFrom
+        const chatId = await getIsValidChatId(idFrom, idTo)
+        if (chatId.isError) return res.status(400).json({text : chatId.text})
 
-        const messageInstance = new Message({
-            _id : chatId,
-            message : [ 
-                {
-                    text : req.body.text
-                }
-            ]
-        })
-
-        const response = await messageInstance.save()
+        const response = await createChatController(chatId, text)
 
         return res.status(200).json(response)
     } catch (e){
@@ -36,23 +29,14 @@ router.post('/sendMessage', middlevarExistChat, async (req, res) => {
     try{   
         const idFrom = req.headers.id
         const idTo = req.body.clientId
+        const text = req.body.text
         
-        if (idFrom.trim() === "" || idTo.trim() === "") return { text: "id is not correct" }
-               
-        const chatId = idFrom > idTo ? idFrom + "-" + idTo : idTo + "-" + idFrom
+        const chatId = await getIsValidChatId(idFrom, idTo)
+        if (chatId.isError) return res.status(400).json({text : chatId.text})
 
-        const newMessage = new OneMessage({
-            text : req.body.text
-        })
+        const response = await sendMessageController(chatId, text)
 
-        const updatedChat = await Message.findByIdAndUpdate(
-            chatId,
-            { $push: { message: newMessage } },
-            { new: true, runValidators: true }
-        )
-
-        return res.status(200).json(updatedChat)
-
+        return res.status(200).json(response)
     } catch (e){
         return res.status(500).json(e.errorResponse)
     }
@@ -92,18 +76,12 @@ router.delete('/deleteOneMessage', middlevarExistChat, async (req, res) => {
         const idTo = req.body.clientId
         const _id = req.body.messageId
         
-        if (idFrom.trim() === "" || idTo.trim() === "") return { text: "id is not correct" }
-               
-        const chatId = idFrom > idTo ? idFrom + "-" + idTo : idTo + "-" + idFrom
+        const chatId = await getIsValidChatId(idFrom, idTo)
+        if (chatId.isError) return res.status(400).json({text : chatId.text})
 
-        const updatedChat = await Message.findByIdAndUpdate(
-            chatId,
-            { $pull: { message: { _id: _id } } },
-            { new: true }
-          )
+        const response = await deleteOneMessageController(chatId, _id)
 
-        return res.status(200).json(updatedChat)
-
+        return res.status(200).json(response)
     } catch (e){
         return res.status(500).json(e.errorResponse)
     }
@@ -114,9 +92,3 @@ router.delete('/deleteOneMessage', middlevarExistChat, async (req, res) => {
 module.exports = router
 
 
-
-// const id1 = 'sada-sadsad-sadsa-sadsa-sad';
-// const id2 = 'sada-sadsad-sadsa-sadsa-sad';
-
-// 'client1-client2'
-// ''

@@ -1,7 +1,7 @@
 const {Router} = require("express")
 const router = Router()
 const schemaUser = require('../scheme/user.scheme')
-import {getIsValidNumber, getIsValidPassword} from '../src/validation'
+import {getIsValidNumber, getIsValidPassword} from '../utils/validation'
 
 
 
