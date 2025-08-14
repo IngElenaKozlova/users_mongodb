@@ -1,7 +1,7 @@
 import {Message, OneMessage} from '../scheme/message.scheme'
 
 
-export const createChatController = async (chatId, text) => {
+export const createChatController = async (chatId : string, text : string) => {
     const messageInstance = new Message({
         _id : chatId,
         message : [ 
@@ -14,7 +14,7 @@ export const createChatController = async (chatId, text) => {
 }
 
 
-export const sendMessageController = async (chatId, text) => {
+export const sendMessageController = async (chatId : string, text : string) => {
     const newMessage = new OneMessage({
         text
     })
@@ -28,7 +28,7 @@ export const sendMessageController = async (chatId, text) => {
 }
 
 
-export const deleteOneMessageController = async (chatId, _id) => {
+export const deleteOneMessageController = async (chatId : string, _id : string) => {
     const updatedChat = await Message.findByIdAndUpdate(
         chatId,
         { $pull: { message: { _id: _id } } },

@@ -1,15 +1,13 @@
 const {Router} = require("express")
 const router = Router()
-const schemaUser = require('../scheme/user.scheme')
+import { createUserController, getUserByIdController, getUsersController, editUserByIdController, editUserPasswordController, deleteUserByIdController } from '../controllers/usersControllers'
 import {getIsValidNumber, getIsValidPassword} from '../utils/validation'
 
 
 
 router.post('/createUser', async (req, res) => {
     try{   
-        const userInstance = new schemaUser(req.body)
-        const response = await userInstance.save()
-
+        const response = await createUserController(req.body)
         return res.status(200).json(response)
     } catch (e){
         return res.status(500).json(e.errorResponse)
@@ -20,8 +18,8 @@ router.post('/createUser', async (req, res) => {
 router.get('/getUser/:id', async (req, res) => {
     try{   
         const userId = req.params.id
-        const user = await schemaUser.findById(userId)
-        return res.status(200).json(user)
+        const response = await getUserByIdController(userId)
+        return res.status(200).json(response)
     } catch (e){
         return res.status(500).json(e.errorResponse)
     }
@@ -33,12 +31,13 @@ router.get('/getUsers', async (req, res) => {
         const {page, count} = req.body
 
         const pageValidation = getIsValidNumber(page)
-        if (!pageValidation) return res.status(409).json('page is not a number') 
-        const countValidation = getIsValidNumber(count)
-        if (!countValidation) return res.status(409).json('count is not a number')
+        if (pageValidation.isError) return res.status(400).json({text : pageValidation.text})
 
-        const users = await schemaUser.find().skip((page-1)*count).limit(count)
-        return res.status(200).json(users)
+        const countValidation = getIsValidNumber(count)
+        if (countValidation.isError) return res.status(400).json({text : countValidation.text})
+
+        const response = await getUsersController(page, count)
+        return res.status(200).json(response)
     } catch (e){
         return res.status(500).json(e.errorResponse)
     }
@@ -48,14 +47,8 @@ router.get('/getUsers', async (req, res) => {
 router.post('/editUser/:id', async (req, res) => {
     try{   
         const userId = req.params.id
-
-        const editedUser = await schemaUser.findByIdAndUpdate(
-            userId,
-            req.body,
-            { new: true, runValidators: true }
-        )
-
-        return res.status(200).json(editedUser)
+        const response = await editUserByIdController(userId, req.body)
+        return res.status(200).json(response)
     } catch (e){
         return res.status(500).json(e.errorResponse)
     }
@@ -67,15 +60,10 @@ router.post('/editUserPassword/:id', async (req, res) => {
         const userId = req.params.id
 
         const passwordValidation = getIsValidPassword(req.body.password)
-        if (!passwordValidation) return res.status(409).json('password is not acceptable') 
+        if (passwordValidation.isError) return res.status(400).json({text : passwordValidation.text})
 
-        const editedPasswordUser = await schemaUser.findByIdAndUpdate(
-            userId,
-            req.body,
-            { new: true, runValidators: true }
-        )
-
-        return res.status(200).json(editedPasswordUser)
+        const response = await editUserPasswordController(userId, req.body)
+        return res.status(200).json(response)
     } catch (e){
         return res.status(500).json(e.errorResponse)
     }
@@ -85,8 +73,8 @@ router.post('/editUserPassword/:id', async (req, res) => {
 router.delete('/deleteUser/:id', async (req, res) => {
     try{   
         const userId = req.params.id
-        const deletedUser = await schemaUser.findByIdAndDelete(userId)
-        return res.status(200).json(deletedUser)
+        const response = await deleteUserByIdController(userId)
+        return res.status(200).json(response)
     } catch (e){
         return res.status(500).json(e.errorResponse)
     }

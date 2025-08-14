@@ -1,13 +1,13 @@
 export const getIsValidNumber = (elem) => {
-    if (typeof elem === 'number' && elem > 0) return true
-    return false
+    if (typeof elem === 'number' && elem > 0) return { text : "not a number", isError : true }  
+    return {text : elem, isError : false}
 }
 
 
 export const getIsValidPassword = (elem) => {
     const elemWthSpace = elem.trim()
-    if (elemWthSpace.length >= 5 && elemWthSpace.length <= 15) return true
-    return false
+    if (elemWthSpace.length >= 5 && elemWthSpace.length <= 15) return { text : "password is not acceptable", isError : true }  
+    return {text : elem, isError : false}
 }
 
 
@@ -16,6 +16,8 @@ export const getIsValidChatId = (idFrom : string, idTo : string) : {text : strin
     const chatId = idFrom > idTo ? idFrom + "-" + idTo : idTo + "-" + idFrom
     return {text : chatId, isError : false}
 }
+
+
 
 
 

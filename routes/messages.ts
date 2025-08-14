@@ -16,7 +16,7 @@ router.post('/createChat', async (req, res) => {
         const chatId = await getIsValidChatId(idFrom, idTo)
         if (chatId.isError) return res.status(400).json({text : chatId.text})
 
-        const response = await createChatController(chatId, text)
+        const response = await createChatController(chatId.text, text)
 
         return res.status(200).json(response)
     } catch (e){
@@ -34,7 +34,7 @@ router.post('/sendMessage', middlevarExistChat, async (req, res) => {
         const chatId = await getIsValidChatId(idFrom, idTo)
         if (chatId.isError) return res.status(400).json({text : chatId.text})
 
-        const response = await sendMessageController(chatId, text)
+        const response = await sendMessageController(chatId.text, text)
 
         return res.status(200).json(response)
     } catch (e){
@@ -79,7 +79,7 @@ router.delete('/deleteOneMessage', middlevarExistChat, async (req, res) => {
         const chatId = await getIsValidChatId(idFrom, idTo)
         if (chatId.isError) return res.status(400).json({text : chatId.text})
 
-        const response = await deleteOneMessageController(chatId, _id)
+        const response = await deleteOneMessageController(chatId.text, _id)
 
         return res.status(200).json(response)
     } catch (e){
