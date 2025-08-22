@@ -1,5 +1,5 @@
 import { Message, OneMessage } from '../scheme/message.scheme'
-import { createChatController, sendMessageController, deleteOneMessageController } from '../controllers/messagesControllers'
+import { createChatController, sendMessageController, deleteOneMessageController, updateMessageController } from '../controllers/messagesControllers'
 import { getIsValidChatId } from '../utils/validation'
 import { middlevarExistChat } from '../src/middlevar'
 import { faker } from '@faker-js/faker'
@@ -87,6 +87,31 @@ router.delete('/deleteOneMessage', middlevarExistChat, async (req, res) => {
     }
 })
 
+
+router.post('/editOneMessage', middlevarExistChat, async (req, res) => {
+    try{   
+        const idFrom = req.headers.id
+        const idTo = req.body.clientId
+        const text = req.body.text
+        const _id = req.body._id
+        
+        const chatId = await getIsValidChatId(idFrom, idTo)
+        if (chatId.isError) return res.status(400).json({text : chatId.text})
+
+        const response = await updateMessageController(chatId.text, _id, text)
+
+        return res.status(200).json(response)
+    } catch (e){
+        return res.status(500).json(e.errorResponse)
+    }
+})
+
+
+
+
+
+// remove more message [id,id,id]
+// remove chat 
 
 
 module.exports = router

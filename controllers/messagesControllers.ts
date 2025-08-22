@@ -38,3 +38,19 @@ export const deleteOneMessageController = async (chatId : string, _id : string) 
 }
 
 
+export const updateMessageController = async (chatId : string, _id: string, text : string) => {
+    const updatedChat = await Message.findOneAndUpdate(
+        {  _id: chatId, "message._id": _id },
+        { $set: { "message.$.text": text } },       
+        { new: true, runValidators: true }          
+    )
+    return updatedChat
+}
+
+
+
+
+
+
+
+
