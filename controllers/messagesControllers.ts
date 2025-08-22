@@ -48,6 +48,14 @@ export const updateMessageController = async (chatId : string, _id: string, text
 }
 
 
+export const deleteSomeMessagesController = async (chatId : string, messageIds : string[]) => {
+    const updatedChat = await Message.findByIdAndUpdate(
+        chatId,
+        { $pull: { message: { _id: { $in: messageIds } } } },
+        { new: true }
+      )    
+      return updatedChat
+}
 
 
 
