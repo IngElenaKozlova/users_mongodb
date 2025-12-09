@@ -2,9 +2,14 @@ import {User} from '../scheme/user.scheme'
 
 
 
-export const createUserController = async (data : {name : string, age : number, email : string, password : string}) => {
-    const userInstance = new User(data)
-    return await userInstance.save()
+export const createUserController = async (data : {name : string, age: number, email : string, password : string}) => {
+    try { 
+        //! write validaton (if does not exist or incorrect?) for one key then for all of them
+        const userInstance = new User(data) 
+        return await userInstance.save()   
+    } catch (error) {
+   
+    }
 }
 
 

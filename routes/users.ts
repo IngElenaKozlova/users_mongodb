@@ -7,9 +7,16 @@ import {getIsValidNumber, getIsValidPassword} from '../utils/validation'
 
 router.post('/createUser', async (req, res) => {
     try{   
+        console.log('---start---')
         const response = await createUserController(req.body)
+        console.log('---start--- 2')
+        console.log()
+        
         return res.status(200).json(response)
+
     } catch (e){
+        console.log('------------------Error---------------------')
+        console.log(e)
         return res.status(500).json(e.errorResponse)
     }
 })

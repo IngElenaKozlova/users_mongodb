@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Socket Chat</title>
+  <style>
+    body { font-family: sans-serif; background: #fafafa; padding: 20px; }
+    #chat { max-width: 500px; margin: 0 auto; background: white; padding: 15px; border-radius: 10px; }
+    #messages { border: 1px solid #ddd; height: 300px; overflow-y: auto; padding: 10px; margin-bottom: 10px; }
+    .message { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+    .text { flex-grow: 1; }
+    .delete-btn { background: #ff4d4d; color: white; border: none; padding: 5px 8px; border-radius: 5px; cursor: pointer; }
+    input { width: 100%; padding: 10px; margin: 5px 0; }
+    button { padding: 10px 15px; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <div id="chat">
+    <h2>💬 Чат</h2>
+    <div id="messages"></div>
+
+    <input id="username" placeholder="Введите ваш ник..." />
+    <input id="messageInput" placeholder="Введите сообщение..." />
+    <button id="sendBtn">Отправить</button>
+  </div>
+
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  <script>
+    const socket = io("http://127.0.0.1:3000");
+
+    const usernameInput = document.getElementById("username");
+    const messageInput = document.getElementById("messageInput");
+    const messagesDiv = document.getElementById("messages");
+    const sendBtn = document.getElementById("sendBtn");
+
+    // при подключении
+    socket.on("connect", () => {
+      console.log("✅ Подключено:", socket.id);
+    });
+
+    // отправляем сообщение
+    sendBtn.onclick = () => {
+      const name = usernameInput.value.trim() || "Аноним";
+      const text = messageInput.value.trim();
+
+      if (!text) return;
+
+      socket.emit("sendMessage", { name, text });
+      messageInput.value = "";
+    };
+
+    // получаем одно сообщение
+    socket.on("sendMessage", (msg) => {
+      renderMessage(msg);
+    });
+
+    // получаем все старые сообщения
+    socket.on("getAllMessage", (array) => {
+      messagesDiv.innerHTML = "";
+      array.forEach((msg) => renderMessage(msg));
+    });
+
+    // 🧹 получаем сигнал об удалении
+    socket.on("deleteMessage", (id) => {
+      const el = document.getElementById(`msg-${id}`);
+      if (el) el.remove();
+    });
+
+    // функция отрисовки сообщения
+    function renderMessage(msg) {
+      console.log(msg, 'msg')
+      const wrapper = document.createElement("div");
+      wrapper.className = "message";
+      wrapper.id = `msg-${msg._id}`; // предполагаем, что сервер отправляет _id
+
+      const textEl = document.createElement("div");
+      textEl.className = "text";
+      textEl.textContent = `${msg.name}: ${msg.text}`;
+
+      const delBtn = document.createElement("button");
+      delBtn.className = "delete-btn";
+      delBtn.textContent = "🗑";
+      delBtn.onclick = () => {
+        const name = usernameInput.value.trim() || "Аноним";
+        // socket.emit("deleteMessage", msg._id); // 🔥 отправляем ID на сервер
+        socket.emit("deleteMessage",{_id : msg._id, name}); // 🔥 отправляем ID на сервер
+      };
+
+      wrapper.appendChild(textEl);
+      wrapper.appendChild(delBtn);
+      messagesDiv.appendChild(wrapper);
+      messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
+  </script>
+</body>
+</html>
